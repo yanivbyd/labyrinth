@@ -8,9 +8,7 @@ import {CreatureTable} from "./creatureTable";
 export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, creatureTable: CreatureTable) {
     let width = matrix.width;
     let height = matrix.height;
-
-    // Ensure we have one of each type
-    let types = [0, 1, 2];
+    const numberOfTypes = 6;
     let occupiedPositions = new Set<string>();
 
     for (let i = 0; i < 8; i++) {
@@ -28,12 +26,12 @@ export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, crea
         occupiedPositions.add(positionKey);
 
         let type;
-        if (i < 3) {
+        if (i < numberOfTypes) {
             // For the first three creatures, use each type once
-            type = types.pop()!;
+            type = i;
         } else {
             // For the remaining creatures, choose randomly
-            type = Math.floor(Math.random() * 3);
+            type = Math.floor(Math.random() * numberOfTypes);
         }
 
         const creature = new Creature(type, i, config.initialHealth);

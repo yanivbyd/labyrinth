@@ -87,6 +87,18 @@ h1 {
     background: radial-gradient(circle at 30% 30%, #5f27cd, #341f97);
 }
 
+.creature_3 {
+    background: radial-gradient(circle at 30% 30%, #27cd4e, #27690e);
+}
+
+.creature_4 {
+    background: radial-gradient(circle at 30% 30%, #dfc95f, #5f5938);
+}
+
+.creature_5 {
+    background: radial-gradient(circle at 30% 30%, #eac114, #f1e49d);
+}
+
 .creature::after {
     content: '';
     position: absolute;

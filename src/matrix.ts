@@ -117,7 +117,7 @@ export class Matrix {
 
     cycle() {
         this.cycleCount++;
-        if (Math.random() < 0.1) {
+        if (Math.random() < 0.05) {
             this.addFood();
         }
 
@@ -127,7 +127,7 @@ export class Matrix {
                 if (cell && cell.creature && cell.creature.health > 0) {
                     const creature = cell.creature;
                     creature.cycle(this);
-                    if (Math.random() < 0.01) {
+                    if (Math.random() < 0.02) {
                         creature.health--;
                         if (creature.health == 0) {
                             this.renderer.creatureDead(creature);
@@ -142,7 +142,7 @@ export class Matrix {
     private addFood() {
         const x = Math.floor(Math.random() * (this.width - 2)) + 1;
         const y = Math.floor(Math.random() * (this.height - 2)) + 1;
-        if (!this.cells[y][x].food) {
+        if (!this.cells[y][x].food && !this.cells[y][x].creature) {
             this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
             this.renderer.foodAdded(this.cells[y][x]);
         }

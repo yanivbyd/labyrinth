@@ -1,7 +1,14 @@
 // creature.ts
 
 import { Matrix } from './matrix';
-import {CreatureTable} from "./creatureTable.js";
+import { CreatureTable } from "./creatureTable.js";
+
+export enum Direction {
+    Up = 'up',
+    Down = 'down',
+    Left = 'left',
+    Right = 'right'
+}
 
 export class Creature {
     type: number;
@@ -10,7 +17,7 @@ export class Creature {
     x: number;
     y: number;
     cycleCount: number;
-    direction: 'up' | 'down' | 'left' | 'right' | null;
+    direction: Direction | null;
     health: number;
 
     constructor(type: number, id: number, initialHealth: number) {
@@ -32,81 +39,90 @@ export class Creature {
         if (this.cycleCount == matrix.cycleCount) return;
         this.cycleCount = matrix.cycleCount;
 
-        // Chance to change direction based on creature type
-        let changeDirectionChance: number;
-        switch (this.type) {
-            case 0: changeDirectionChance = 0.8; break;
-            case 1: changeDirectionChance = 0.5; break;
-            case 2: changeDirectionChance = 0.1; break;
-            default: changeDirectionChance = 0.2;
-        }
+        if (this.moveToAdjacentFood(matrix)) return;
 
+        this.updateDirection();
+        this.moveInAvailableDirection(matrix);
+
+        this.updateUI();
+    }
+
+    private moveToAdjacentFood(matrix: Matrix): boolean {
+        const adjacentCells = this.getAdjacentCells();
+        for (const { newX, newY, direction } of adjacentCells) {
+            const cell = matrix.getCell(newX, newY);
+            if (cell?.food && matrix.canCreatureMoveTo(this, newX, newY)) {
+                matrix.moveCreature(this, newX, newY);
+                this.direction = direction;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private updateDirection() {
+        const changeDirectionChance = this.getChangeDirectionChance();
         if (Math.random() < changeDirectionChance) {
             this.direction = null;
         }
+    }
 
-        const oppositeDirection = {
-            'up': 'down',
-            'down': 'up',
-            'left': 'right',
-            'right': 'left'
-        };
-
-        let directions: ('up' | 'down' | 'left' | 'right')[] = ['up', 'down', 'left', 'right'];
-
-        // Remove the opposite of the current direction from the options
-        if (this.direction) {
-            const dir: 'up' | 'down' | 'left' | 'right' = this.direction;
-            directions = directions.filter(dir => dir !== oppositeDirection[dir]);
-        }
-
-        // Shuffle the remaining directions
-        directions.sort(() => Math.random() - 0.5);
-
-        // Try to move in the current direction first if it exists
-        if (this.direction) {
-            directions.unshift(this.direction);
-        }
-
+    private moveInAvailableDirection(matrix: Matrix) {
+        const directions = this.getShuffledDirections();
         for (const direction of directions) {
-            let newX = this.x;
-            let newY = this.y;
-            switch (direction) {
-                case 'up': newY--; break;
-                case 'down': newY++; break;
-                case 'left': newX--; break;
-                case 'right': newX++; break;
-            }
-
+            const { newX, newY } = this.getNewCoordinates(direction);
             if (matrix.canCreatureMoveTo(this, newX, newY)) {
                 matrix.moveCreature(this, newX, newY);
-                this.direction = direction; // Set the new direction
-                this.updateUI();
+                this.direction = direction;
                 return;
             }
         }
-
-        // If we couldn't move in any other direction, try the opposite direction as a last resort
-        if (this.direction) {
-            const lastResortDirection = oppositeDirection[this.direction];
-            let newX = this.x;
-            let newY = this.y;
-            switch (lastResortDirection) {
-                case 'up': newY--; break;
-                case 'down': newY++; break;
-                case 'left': newX--; break;
-                case 'right': newX++; break;
-            }
-
-            if (matrix.canCreatureMoveTo(this, newX, newY)) {
-                matrix.moveCreature(this, newX, newY);
-                this.direction = lastResortDirection as 'up' | 'down' | 'left' | 'right';
-                this.updateUI();
-                return;
-            }
-        }
-
-        // If we couldn't move in any direction, reset the direction
         this.direction = null;
+    }
+
+    private getChangeDirectionChance(): number {
+        return (this.type / 15.0);
+    }
+
+    private getAdjacentCells(): { newX: number; newY: number; direction: Direction }[] {
+        return [
+            { newX: this.x, newY: this.y - 1, direction: Direction.Up },
+            { newX: this.x + 1, newY: this.y, direction: Direction.Right },
+            { newX: this.x, newY: this.y + 1, direction: Direction.Down },
+            { newX: this.x - 1, newY: this.y, direction: Direction.Left }
+        ];
+    }
+
+    private getShuffledDirections(): Direction[] {
+        const directions: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right];
+        if (this.direction) {
+            const oppositeDirection = this.getOppositeDirection(this.direction);
+            const filteredDirections = directions.filter(dir => dir !== oppositeDirection);
+            filteredDirections.sort(() => Math.random() - 0.5);
+            return [this.direction, ...filteredDirections];
+        }
+        return directions.sort(() => Math.random() - 0.5);
+    }
+
+    private getOppositeDirection(direction: Direction): Direction {
+        const oppositeDirections: { [key in Direction]: Direction } = {
+            [Direction.Up]: Direction.Down,
+            [Direction.Down]: Direction.Up,
+            [Direction.Left]: Direction.Right,
+            [Direction.Right]: Direction.Left
+        };
+        return oppositeDirections[direction];
+    }
+
+    private getNewCoordinates(direction: Direction): { newX: number; newY: number } {
+        let newX = this.x;
+        let newY = this.y;
+        switch (direction) {
+            case Direction.Up: newY--; break;
+            case Direction.Down: newY++; break;
+            case Direction.Left: newX--; break;
+            case Direction.Right: newX++; break;
+        }
+        return { newX, newY };
     }
 }
