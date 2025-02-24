@@ -1,6 +1,6 @@
 import {MatrixRenderer} from "./matrixRenderer";
-
-export { Cell, Creature, Matrix };
+import {Creature} from "./creature";
+export { Cell, Matrix };
 
 class Cell {
     x: number;
@@ -26,26 +26,19 @@ class Cell {
     }
 }
 
-class Creature {
-    id: number;
-    div: HTMLDivElement | null;
-    constructor(id: number) {
-        this.id = id;
-        this.div = null;
-    }
-}
-
 class Matrix {
     width: number;
     height: number;
     cells: Cell[][];
     renderer: MatrixRenderer;
+    cycleCount: number;
 
     constructor(width: number, height: number, renderer: MatrixRenderer) {
         this.width = width;
         this.height = height;
         this.cells = [];
         this.renderer = renderer;
+        this.cycleCount = -1;
 
         for (let y = 0; y < height; y++) {
             this.cells[y] = [];
@@ -94,28 +87,62 @@ class Matrix {
         const cell = this.getCell(x, y);
         if (cell && !cell.creature) {
             cell.creature = creature;
+            cell.creature.x = x;
+            cell.creature.y = y;
             return true;
         }
         return false;
     }
 
-    moveCreature(fromX: number, fromY: number, toX: number, toY: number): boolean {
-        const fromCell = this.getCell(fromX, fromY);
+    private canMoveBetweenCells(fromCell: Cell, toCell: Cell, fromX: number, fromY: number, toX: number, toY: number): boolean {
+        if (!fromCell || !toCell || toCell.creature) {
+            return false;
+        }
+
+        if (fromX === toX && Math.abs(fromY - toY) === 1) {
+            return !fromCell.walls[fromY < toY ? 'bottom' : 'top'];
+        }
+
+        if (fromY === toY && Math.abs(fromX - toX) === 1) {
+            return !fromCell.walls[fromX < toX ? 'right' : 'left'];
+        }
+
+        return false;
+    }
+
+    canCreatureMoveTo(creature: Creature, toX: number, toY: number): boolean {
+        const fromCell = this.getCell(creature.x, creature.y);
+        const toCell = this.getCell(toX, toY);
+        return fromCell != null && toCell != null &&
+            this.canMoveBetweenCells(fromCell, toCell, creature.x, creature.y, toX, toY);
+    }
+
+    moveCreature(creature: Creature, toX: number, toY: number): boolean {
+        const fromCell = this.getCell(creature.x, creature.y);
         const toCell = this.getCell(toX, toY);
 
-        if (fromCell && toCell && fromCell.creature && !toCell.creature) {
-            // Check if there's a wall between the cells
-            if (
-                (fromX === toX && Math.abs(fromY - toY) === 1 && !fromCell.walls[fromY < toY ? 'bottom' : 'top']) ||
-                (fromY === toY && Math.abs(fromX - toX) === 1 && !fromCell.walls[fromX < toX ? 'right' : 'left'])
-            ) {
-                toCell.creature = fromCell.creature;
-                fromCell.creature = null;
+        if (fromCell != null && toCell != null &&
+            this.canMoveBetweenCells(fromCell, toCell, creature.x, creature.y, toX, toY)) {
+            toCell.creature = creature;
+            fromCell.creature = null;
+            creature.x = toX;
+            creature.y = toY;
 
-                this.renderer.creatureMoved(toCell.creature);
-                return true;
-            }
+            this.renderer.updateCreaturePosition(creature);
+            return true;
         }
         return false;
+    }
+
+    cycle() {
+        this.cycleCount++;
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = this.getCell(x, y);
+                if (cell && cell.creature) {
+                    cell.creature.cycle(this);
+                }
+            }
+        }
     }
 }

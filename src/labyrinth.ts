@@ -1,5 +1,8 @@
-import { Matrix, Creature } from './matrix.js';
+// labyrinth.ts
+
+import { Matrix } from './matrix.js';
 import { MatrixRenderer } from './matrixRenderer.js';
+import { Creature } from "./creature.js";
 
 async function loadConfig() {
     const response = await fetch('./labyrinth.json');
@@ -13,35 +16,82 @@ async function initLabyrinth() {
     const renderer = new MatrixRenderer('matrix-container', cellSizePx);
     const matrix = new Matrix(matrixWidth, matrixHeight, renderer);
 
-    // Add surrounding walls
-    for (let x = 0; x < matrixWidth; x++) {
-        matrix.addWall(x, 0, 'top');               // Top wall
-        matrix.addWall(x, matrixHeight - 1, 'bottom'); // Bottom wall
-    }
-    for (let y = 0; y < matrixHeight; y++) {
-        matrix.addWall(0, y, 'left');              // Left wall
-        matrix.addWall(matrixWidth - 1, y, 'right');   // Right wall
-    }
-
-    // Add some internal walls
-    matrix.addWall(1, 1, 'right');
-    matrix.addWall(2, 2, 'bottom');
+    constructWalls(matrix, matrixWidth, matrixHeight)
 
     // Add a creature (moved to (1,1) to avoid starting in the surrounding wall)
-    const creature = new Creature(1);
-    matrix.addCreature(creature, 1, 1);
+    matrix.addCreature(new Creature(1), 1, 1);
+    matrix.addCreature(new Creature(2), 5, 7);
+    matrix.addCreature(new Creature(3), 7, 9);
+    matrix.addCreature(new Creature(3), 7, 2);
 
     // Render the matrix
     renderer.render(matrix);
 
-    // Example of moving the creature (adjusted for new starting position)
-    setTimeout(() => {
-        matrix.moveCreature(1, 1, 2, 1);
-    }, 1000);
+    // Set up the cycle button
+    const cycleButton = document.getElementById('cycle-button');
+    if (cycleButton) {
+        cycleButton.addEventListener('click', () => {
+            console.log('cycle');
+            matrix.cycle();
+        });
+    }
 
-    setTimeout(() => {
-        matrix.moveCreature(2, 1, 3, 1);
-    }, 2000);
+    // Set up the play/stop button
+    const playStopButton = document.getElementById('play-stop-button');
+    let intervalId: number | null = null;
+
+    if (playStopButton) {
+        playStopButton.addEventListener('click', () => {
+            if (intervalId === null) {
+                // Start playing
+                intervalId = window.setInterval(() => {
+                    matrix.cycle();
+                }, 100);
+                playStopButton.textContent = 'Stop';
+            } else {
+                // Stop playing
+                window.clearInterval(intervalId);
+                intervalId = null;
+                playStopButton.textContent = 'Play';
+            }
+        });
+    }
+
+}
+function constructWalls(matrix: Matrix, width: number, height: number) {
+    // Add surrounding walls
+    for (let x = 0; x < width; x++) {
+        matrix.addWall(x, 0, 'top');
+        matrix.addWall(x, height - 1, 'bottom');
+    }
+    for (let y = 0; y < height; y++) {
+        matrix.addWall(0, y, 'left');
+        matrix.addWall(width - 1, y, 'right');
+    }
+
+    // Add some internal walls to create a more interesting labyrinth
+
+    // Vertical walls
+    for (let y = 2; y < height - 2; y++) {
+        matrix.addWall(Math.floor(width / 3), y, 'right');
+        matrix.addWall(Math.floor(2 * width / 3), y, 'left');
+    }
+
+    // Horizontal walls
+    for (let x = 2; x < width - 2; x++) {
+        if (x !== Math.floor(width / 2)) {
+            matrix.addWall(x, Math.floor(height / 3), 'bottom');
+            matrix.addWall(x, Math.floor(2 * height / 3), 'top');
+        }
+    }
+
+    // Add some random walls
+    for (let i = 0; i < 10; i++) {
+        const x = Math.floor(Math.random() * (width - 2)) + 1;
+        const y = Math.floor(Math.random() * (height - 2)) + 1;
+        const direction = Math.random() < 0.5 ? 'right' : 'bottom';
+        matrix.addWall(x, y, direction);
+    }
 }
 
 initLabyrinth().catch(console.error);

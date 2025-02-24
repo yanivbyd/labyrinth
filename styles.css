@@ -1,10 +1,8 @@
 body {
     font-family: Arial, sans-serif;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 100vh;
-    margin: 0;
     background-color: #f0f0f0;
 }
 
@@ -12,8 +10,59 @@ h1 {
     color: #333;
 }
 
-#message {
-    font-size: 24px;
-    color: #666;
-    margin-top: 20px;
+#matrix-container {
+    margin-bottom: 20px;
+    background: #fff;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.control-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#cycle-button {
+    background-color: #4CAF50;
+}
+
+#cycle-button:hover {
+    background-color: #45a049;
+}
+
+#cycle-button:active {
+    background-color: #3e8e41;
+}
+
+#play-stop-button {
+    background-color: #2196F3;
+}
+
+#play-stop-button:hover {
+    background-color: #1E88E5;
+}
+
+#play-stop-button:active {
+    background-color: #1976D2;
+}
+
+.creature {
+    position: absolute;
+    transition: transform 0.3s ease-out;
+    width: 60%; /* Adjust based on your creatureSize */
+    height: 60%; /* Adjust based on your creatureSize */
+    border-radius: 50%;
+    background-color: red;
 }
