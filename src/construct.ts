@@ -13,7 +13,7 @@ export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, crea
     let types = [0, 1, 2];
     let occupiedPositions = new Set<string>();
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
         let x, y;
         let positionKey;
 

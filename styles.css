@@ -94,3 +94,36 @@ h1 {
     background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(255,255,255,0));
 }
 
+.food {
+    position: absolute;
+    transition: all 0.3s ease-out;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid #FFA500; /* Orange color for pizza */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transform-origin: center bottom;
+}
+
+.food::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; /* Should be negative of border-bottom */
+    left: -10px; /* Should be negative of border-left */
+    width: 20px; /* Should be double of border-left */
+    height: 4px;
+    background-color: #FF0000; /* Red color for tomato sauce */
+    border-radius: 0 0 10px 10px;
+}
+
+.food-amount {
+    position: absolute;
+    bottom: -18px; /* Adjust as needed */
+    font-size: 8px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}

@@ -1,32 +1,8 @@
 import {MatrixRenderer} from "./matrixRenderer";
 import {Creature} from "./creature";
-export { Cell, Matrix };
+import {Cell, Food} from "./cell.js";
 
-class Cell {
-    x: number;
-    y: number;
-    walls: {
-        top: boolean;
-        right: boolean;
-        bottom: boolean;
-        left: boolean;
-    };
-    creature: Creature | null;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-        this.walls = {
-            top: false,
-            right: false,
-            bottom: false,
-            left: false,
-        };
-        this.creature = null;
-    }
-}
-
-class Matrix {
+export class Matrix {
     width: number;
     height: number;
     cells: Cell[][];
@@ -117,7 +93,7 @@ class Matrix {
             this.canMoveBetweenCells(fromCell, toCell, creature.x, creature.y, toX, toY);
     }
 
-    moveCreature(creature: Creature, toX: number, toY: number): boolean {
+    moveCreature(creature: Creature, toX: number, toY: number): Cell | null {
         const fromCell = this.getCell(creature.x, creature.y);
         const toCell = this.getCell(toX, toY);
 
@@ -128,14 +104,23 @@ class Matrix {
             creature.x = toX;
             creature.y = toY;
 
+            if (toCell.food != null) {
+                creature.health += toCell.food.amount;
+                this.renderer.removeFood(toCell.food);
+                toCell.food = null;
+            }
             this.renderer.updateCreaturePosition(creature);
-            return true;
+            return toCell;
         }
-        return false;
+        return null;
     }
 
     cycle() {
         this.cycleCount++;
+        if (Math.random() < 0.1) {
+            this.addFood();
+        }
+
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.getCell(x, y);
@@ -144,5 +129,12 @@ class Matrix {
                 }
             }
         }
+    }
+
+    private addFood() {
+        const x = Math.floor(Math.random() * (this.width - 2)) + 1;
+        const y = Math.floor(Math.random() * (this.height - 2)) + 1;
+        this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
+        this.renderer.foodAdded(this.cells[y][x]);
     }
 }

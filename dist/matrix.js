@@ -1,18 +1,5 @@
-export { Cell, Matrix };
-class Cell {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.walls = {
-            top: false,
-            right: false,
-            bottom: false,
-            left: false,
-        };
-        this.creature = null;
-    }
-}
-class Matrix {
+import { Cell, Food } from "./cell.js";
+export class Matrix {
     constructor(width, height, renderer) {
         this.width = width;
         this.height = height;
@@ -99,13 +86,21 @@ class Matrix {
             fromCell.creature = null;
             creature.x = toX;
             creature.y = toY;
+            if (toCell.food != null) {
+                creature.health += toCell.food.amount;
+                this.renderer.removeFood(toCell.food);
+                toCell.food = null;
+            }
             this.renderer.updateCreaturePosition(creature);
-            return true;
+            return toCell;
         }
-        return false;
+        return null;
     }
     cycle() {
         this.cycleCount++;
+        if (Math.random() < 0.1) {
+            this.addFood();
+        }
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.getCell(x, y);
@@ -114,5 +109,11 @@ class Matrix {
                 }
             }
         }
+    }
+    addFood() {
+        const x = Math.floor(Math.random() * (this.width - 2)) + 1;
+        const y = Math.floor(Math.random() * (this.height - 2)) + 1;
+        this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
+        this.renderer.foodAdded(this.cells[y][x]);
     }
 }

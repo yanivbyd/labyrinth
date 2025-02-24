@@ -104,4 +104,34 @@ export class MatrixRenderer {
             creature.div.style.transform = `translate(${leftOffset}px, ${topOffset}px)`;
         }
     }
+    removeFood(food) {
+        if (food.div) {
+            if (food.div.parentElement) {
+                food.div.parentElement.removeChild(food.div);
+            }
+            food.div = undefined;
+        }
+    }
+    foodAdded(cell) {
+        var _a;
+        if (!cell.food)
+            return;
+        const foodDiv = document.createElement('div');
+        foodDiv.classList.add('food');
+        const size = this.cellSizePx * 0.4; // Reduced size
+        const topOffset = cell.y * this.cellSizePx + (this.cellSizePx - size) / 2;
+        const leftOffset = cell.x * this.cellSizePx + (this.cellSizePx - size) / 2;
+        foodDiv.style.borderLeftWidth = `${size / 2}px`;
+        foodDiv.style.borderRightWidth = `${size / 2}px`;
+        foodDiv.style.borderBottomWidth = `${size}px`;
+        const amountDiv = document.createElement('div');
+        amountDiv.classList.add('food-amount');
+        amountDiv.textContent = cell.food.amount.toString();
+        foodDiv.appendChild(amountDiv);
+        // Random rotation for variety
+        const rotation = Math.random() * 60 - 30; // Random rotation between -30 and 30 degrees
+        foodDiv.style.transform = `translate(${leftOffset}px, ${topOffset}px) rotate(${rotation}deg)`;
+        (_a = this.creatureContainer) === null || _a === void 0 ? void 0 : _a.appendChild(foodDiv);
+        cell.food.div = foodDiv;
+    }
 }
