@@ -20,6 +20,7 @@ h1 {
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    margin-top: 10px;
     width: 100%;
 }
 
@@ -58,22 +59,38 @@ h1 {
     background-color: #1976D2;
 }
 
+/* creatures */
+
 .creature {
     position: absolute;
     transition: transform 0.3s ease-out;
     width: 60%; /* Adjust based on your creatureSize */
     height: 60%; /* Adjust based on your creatureSize */
     border-radius: 50%;
+    box-shadow: inset -3px -3px 5px rgba(0,0,0,0.2),
+    2px 2px 5px rgba(0,0,0,0.3);
 }
 
 .creature_0 {
-    background-color: red;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5253);
 }
 
 .creature_1 {
-    background-color: blue;
+    background: radial-gradient(circle at 30% 30%, #54a0ff, #2e86de);
 }
 
 .creature_2 {
-    background-color: purple;
+    background: radial-gradient(circle at 30% 30%, #5f27cd, #341f97);
 }
+
+.creature::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(255,255,255,0));
+}
+

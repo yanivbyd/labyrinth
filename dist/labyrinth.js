@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { Matrix } from './matrix.js';
 import { MatrixRenderer } from './matrixRenderer.js';
-import { Creature } from "./creature.js";
+import { constructCreatures, constructWalls } from "./construct.js";
 function loadConfig() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield fetch('./labyrinth.json');
@@ -55,67 +55,5 @@ function initLabyrinth() {
             });
         }
     });
-}
-function constructCreatures(matrix) {
-    let width = matrix.width;
-    let height = matrix.height;
-    // Ensure we have one of each type
-    let types = [0, 1, 2];
-    let occupiedPositions = new Set();
-    for (let i = 0; i < 5; i++) {
-        let x, y;
-        let positionKey;
-        // Keep generating positions until we find an unoccupied one
-        do {
-            x = Math.floor(Math.random() * (width - 2)) + 1;
-            y = Math.floor(Math.random() * (height - 2)) + 1;
-            positionKey = `${x},${y}`;
-        } while (occupiedPositions.has(positionKey));
-        // Mark this position as occupied
-        occupiedPositions.add(positionKey);
-        let type;
-        if (i < 3) {
-            // For the first three creatures, use each type once
-            type = types.pop();
-        }
-        else {
-            // For the remaining creatures, choose randomly
-            type = Math.floor(Math.random() * 3);
-        }
-        matrix.addCreature(new Creature(type, i), x, y);
-    }
-}
-function constructWalls(matrix) {
-    let width = matrix.width;
-    let height = matrix.height;
-    // Add surrounding walls
-    for (let x = 0; x < width; x++) {
-        matrix.addWall(x, 0, 'top');
-        matrix.addWall(x, height - 1, 'bottom');
-    }
-    for (let y = 0; y < height; y++) {
-        matrix.addWall(0, y, 'left');
-        matrix.addWall(width - 1, y, 'right');
-    }
-    // Add some internal walls to create a more interesting labyrinth
-    // Vertical walls
-    for (let y = 2; y < height - 2; y++) {
-        matrix.addWall(Math.floor(width / 3), y, 'right');
-        matrix.addWall(Math.floor(2 * width / 3), y, 'left');
-    }
-    // Horizontal walls
-    for (let x = 2; x < width - 2; x++) {
-        if (x !== Math.floor(width / 2)) {
-            matrix.addWall(x, Math.floor(height / 3), 'bottom');
-            matrix.addWall(x, Math.floor(2 * height / 3), 'top');
-        }
-    }
-    // Add some random walls
-    for (let i = 0; i < 10; i++) {
-        const x = Math.floor(Math.random() * (width - 2)) + 1;
-        const y = Math.floor(Math.random() * (height - 2)) + 1;
-        const direction = Math.random() < 0.5 ? 'right' : 'bottom';
-        matrix.addWall(x, y, direction);
-    }
 }
 initLabyrinth().catch(console.error);
