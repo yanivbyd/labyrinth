@@ -134,4 +134,8 @@ export class MatrixRenderer {
         (_a = this.creatureContainer) === null || _a === void 0 ? void 0 : _a.appendChild(foodDiv);
         cell.food.div = foodDiv;
     }
+    creatureDead(creature) {
+        var _a;
+        (_a = creature.div) === null || _a === void 0 ? void 0 : _a.classList.add('dead');
+    }
 }

@@ -104,8 +104,16 @@ export class Matrix {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const cell = this.getCell(x, y);
-                if (cell && cell.creature) {
-                    cell.creature.cycle(this);
+                if (cell && cell.creature && cell.creature.health > 0) {
+                    const creature = cell.creature;
+                    creature.cycle(this);
+                    if (Math.random() < 0.01) {
+                        creature.health--;
+                        if (creature.health == 0) {
+                            this.renderer.creatureDead(creature);
+                            creature.updateUI();
+                        }
+                    }
                 }
             }
         }
@@ -113,7 +121,9 @@ export class Matrix {
     addFood() {
         const x = Math.floor(Math.random() * (this.width - 2)) + 1;
         const y = Math.floor(Math.random() * (this.height - 2)) + 1;
-        this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
-        this.renderer.foodAdded(this.cells[y][x]);
+        if (!this.cells[y][x].food) {
+            this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
+            this.renderer.foodAdded(this.cells[y][x]);
+        }
     }
 }

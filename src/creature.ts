@@ -56,7 +56,8 @@ export class Creature {
 
         // Remove the opposite of the current direction from the options
         if (this.direction) {
-            directions = directions.filter(dir => dir !== oppositeDirection[this.direction]);
+            const dir: 'up' | 'down' | 'left' | 'right' = this.direction;
+            directions = directions.filter(dir => dir !== oppositeDirection[dir]);
         }
 
         // Shuffle the remaining directions

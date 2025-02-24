@@ -71,6 +71,10 @@ h1 {
     2px 2px 5px rgba(0,0,0,0.3);
 }
 
+.creature.dead {
+    opacity: 0.2;
+}
+
 .creature_0 {
     background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5253);
 }

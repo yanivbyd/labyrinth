@@ -159,4 +159,8 @@ export class MatrixRenderer {
         this.creatureContainer?.appendChild(foodDiv);
         cell.food.div = foodDiv;
     }
+
+    creatureDead(creature: Creature) {
+        creature.div?.classList.add('dead');
+    }
 }
