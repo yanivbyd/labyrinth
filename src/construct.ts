@@ -11,7 +11,7 @@ export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, crea
     const numberOfTypes = 6;
     let occupiedPositions = new Set<string>();
 
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 10; i++) {
         let x, y;
         let positionKey;
 

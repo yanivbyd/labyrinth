@@ -37,7 +37,7 @@ async function initLabyrinth() {
                 // Start playing
                 intervalId = window.setInterval(() => {
                     matrix.cycle();
-                }, 40);
+                }, 100);
                 playStopButton.textContent = 'Stop';
             }
             else {

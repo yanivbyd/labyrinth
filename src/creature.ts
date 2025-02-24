@@ -2,22 +2,16 @@
 
 import { Matrix } from './matrix';
 import { CreatureTable } from "./creatureTable.js";
-
-export enum Direction {
-    Up = 'up',
-    Down = 'down',
-    Left = 'left',
-    Right = 'right'
-}
+import {AdjacentCell, Direction, getOppositeDirection} from "./direction.js";
 
 export class Creature {
     type: number;
     id: number;
     div: HTMLDivElement | null;
-    x: number;
-    y: number;
-    cycleCount: number;
-    direction: Direction | null;
+    x: number = -1;
+    y: number = -1;
+    cycleCount: number = -1;
+    direction: Direction | null = null;
     health: number;
 
     constructor(type: number, id: number, initialHealth: number) {
@@ -25,10 +19,6 @@ export class Creature {
         this.id = id;
         this.div = null;
         this.health = initialHealth;
-        this.x = -1;
-        this.y = -1;
-        this.cycleCount = -1;
-        this.direction = null;
     }
 
     updateUI() {
@@ -39,90 +29,79 @@ export class Creature {
         if (this.cycleCount == matrix.cycleCount) return;
         this.cycleCount = matrix.cycleCount;
 
-        if (this.moveToAdjacentFood(matrix)) return;
+        const adjacentCells: AdjacentCell[] = this.getAdjacentCells(matrix);
+        if (adjacentCells.length == 0) return;
 
-        this.updateDirection();
-        this.moveInAvailableDirection(matrix);
+        if (this.moveToAdjacentFood(matrix, adjacentCells)) {
+            console.log("move to food");
+            return;
+        }
+        if (adjacentCells.length > 1 && this.direction) {
+            // don't go back unless you have to
+            this.removeAdjacentCell(adjacentCells, getOppositeDirection(this.direction));
+        }
+        if (adjacentCells.length > 1 && this.direction && !this.shouldKeepMomentum()) {
+            // change momentum
+            this.removeAdjacentCell(adjacentCells, this.direction);
+        }
+
+        const momentum: AdjacentCell | null = this.findAdjacentCell(adjacentCells, this.direction);
+        if (momentum) {
+            this.moveTo(matrix, momentum);
+        } else {
+            console.log("change momentum");
+            const adjacentCell: AdjacentCell = adjacentCells[Math.floor(Math.random() * adjacentCells.length)];
+            this.moveTo(matrix, adjacentCell);
+        }
 
         this.updateUI();
     }
 
-    private moveToAdjacentFood(matrix: Matrix): boolean {
-        const adjacentCells = this.getAdjacentCells();
-        for (const { newX, newY, direction } of adjacentCells) {
-            const cell = matrix.getCell(newX, newY);
-            if (cell?.food && matrix.canCreatureMoveTo(this, newX, newY)) {
-                matrix.moveCreature(this, newX, newY);
-                this.direction = direction;
+    private moveTo(matrix: Matrix, adjacentCell: AdjacentCell) {
+        if (adjacentCell.cell) {
+            matrix.moveCreature(this, adjacentCell.cell.x, adjacentCell.cell.y);
+            this.direction = adjacentCell.direction;
+        }
+    }
+
+    private removeAdjacentCell(adjacentCells: AdjacentCell[], direction: Direction): void {
+        const index = adjacentCells.findIndex(cell => cell.direction === direction);
+        if (index !== -1) {
+            adjacentCells.splice(index, 1);
+        }
+    }
+
+    private moveToAdjacentFood(matrix: Matrix, adjacentCells: AdjacentCell[]): boolean {
+        for (const adjacentCell of adjacentCells) {
+            if (adjacentCell.cell?.food) {
+                this.moveTo(matrix, adjacentCell);
                 return true;
             }
         }
         return false;
     }
 
-    private updateDirection() {
-        const changeDirectionChance = this.getChangeDirectionChance();
-        if (Math.random() < changeDirectionChance) {
-            this.direction = null;
-        }
+    private shouldKeepMomentum(): boolean {
+        return Math.random() >= (this.type / 20.0);
     }
 
-    private moveInAvailableDirection(matrix: Matrix) {
-        const directions = this.getShuffledDirections();
-        for (const direction of directions) {
-            const { newX, newY } = this.getNewCoordinates(direction);
-            if (matrix.canCreatureMoveTo(this, newX, newY)) {
-                matrix.moveCreature(this, newX, newY);
-                this.direction = direction;
-                return;
+    private getAdjacentCells(matrix: Matrix): AdjacentCell[] {
+        return [
+            new AdjacentCell(matrix, this.x, this.y - 1, Direction.Up),
+            new AdjacentCell(matrix, this.x + 1, this.y, Direction.Right),
+            new AdjacentCell(matrix, this.x, this.y + 1, Direction.Down),
+            new AdjacentCell(matrix, this.x - 1, this.y, Direction.Left)
+        ].filter(adjacent => {
+            return adjacent.cell && matrix.canCreatureMoveTo(this, adjacent.cell.x, adjacent.cell.y);
+        });
+    }
+
+    private findAdjacentCell(adjacentCells: AdjacentCell[], direction: Direction | null) {
+        for (const adjacentCell of adjacentCells) {
+            if (adjacentCell.direction == direction) {
+                return adjacentCell;
             }
         }
-        this.direction = null;
-    }
-
-    private getChangeDirectionChance(): number {
-        return (this.type / 15.0);
-    }
-
-    private getAdjacentCells(): { newX: number; newY: number; direction: Direction }[] {
-        return [
-            { newX: this.x, newY: this.y - 1, direction: Direction.Up },
-            { newX: this.x + 1, newY: this.y, direction: Direction.Right },
-            { newX: this.x, newY: this.y + 1, direction: Direction.Down },
-            { newX: this.x - 1, newY: this.y, direction: Direction.Left }
-        ];
-    }
-
-    private getShuffledDirections(): Direction[] {
-        const directions: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right];
-        if (this.direction) {
-            const oppositeDirection = this.getOppositeDirection(this.direction);
-            const filteredDirections = directions.filter(dir => dir !== oppositeDirection);
-            filteredDirections.sort(() => Math.random() - 0.5);
-            return [this.direction, ...filteredDirections];
-        }
-        return directions.sort(() => Math.random() - 0.5);
-    }
-
-    private getOppositeDirection(direction: Direction): Direction {
-        const oppositeDirections: { [key in Direction]: Direction } = {
-            [Direction.Up]: Direction.Down,
-            [Direction.Down]: Direction.Up,
-            [Direction.Left]: Direction.Right,
-            [Direction.Right]: Direction.Left
-        };
-        return oppositeDirections[direction];
-    }
-
-    private getNewCoordinates(direction: Direction): { newX: number; newY: number } {
-        let newX = this.x;
-        let newY = this.y;
-        switch (direction) {
-            case Direction.Up: newY--; break;
-            case Direction.Down: newY++; break;
-            case Direction.Left: newX--; break;
-            case Direction.Right: newX++; break;
-        }
-        return { newX, newY };
+        return null;
     }
 }

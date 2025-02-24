@@ -1,6 +1,6 @@
 {
-    "matrixWidth": 24,
-    "matrixHeight": 20,
-    "cellSizePx": 50,
+    "matrixWidth": 42,
+    "matrixHeight": 30,
+    "cellSizePx": 35,
     "initialHealth": 10
 }

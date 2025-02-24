@@ -143,7 +143,7 @@ export class Matrix {
         const x = Math.floor(Math.random() * (this.width - 2)) + 1;
         const y = Math.floor(Math.random() * (this.height - 2)) + 1;
         if (!this.cells[y][x].food && !this.cells[y][x].creature) {
-            this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
+            this.cells[y][x].food = new Food(Math.ceil(Math.random() * 5));
             this.renderer.foodAdded(this.cells[y][x]);
         }
     }
