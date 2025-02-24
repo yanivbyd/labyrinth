@@ -24,8 +24,8 @@ export class CreatureTable {
             <thead>
                 <tr>
                     <th>Visual</th>
-                    <th>ID</th>
                     <th>Health</th>
+                    <th>Battles (win,lose)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -56,8 +56,8 @@ export class CreatureTable {
     private updateCreatureRow(row: HTMLElement, creature: Creature) {
         row.innerHTML = `
             <td><div class="creature-ball creature_${creature.type}"></div></td>
-            <td>${creature.id}</td>
             <td>${creature.health}</td>
+            <td>+${creature.battlesWon}  -${creature.battlesLost}</td>
         `;
     }
 }

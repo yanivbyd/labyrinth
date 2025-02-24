@@ -11,6 +11,8 @@ export class Creature {
     x: number = -1;
     y: number = -1;
     cycleCount: number = -1;
+    battlesWon: number = 0;
+    battlesLost: number = 0;
     direction: Direction | null = null;
     health: number;
 
@@ -28,29 +30,29 @@ export class Creature {
     cycle(matrix: Matrix) {
         if (this.cycleCount == matrix.cycleCount) return;
         this.cycleCount = matrix.cycleCount;
+        this.attackNeighbour(matrix);
 
-        const adjacentCells: AdjacentCell[] = this.getAdjacentCells(matrix);
-        if (adjacentCells.length == 0) return;
+        const adjCells: AdjacentCell[] = this.getAdjacentCells(matrix);
+        if (adjCells.length == 0) return;
 
-        if (this.moveToAdjacentFood(matrix, adjacentCells)) {
+        if (this.moveToAdjacentFood(matrix, adjCells)) {
             console.log("move to food");
             return;
         }
-        if (adjacentCells.length > 1 && this.direction) {
+        if (adjCells.length > 1 && this.direction) {
             // don't go back unless you have to
-            this.removeAdjacentCell(adjacentCells, getOppositeDirection(this.direction));
+            this.removeAdjCell(adjCells, getOppositeDirection(this.direction));
         }
-        if (adjacentCells.length > 1 && this.direction && !this.shouldKeepMomentum()) {
+        if (adjCells.length > 1 && this.direction && !this.shouldKeepMomentum()) {
             // change momentum
-            this.removeAdjacentCell(adjacentCells, this.direction);
+            this.removeAdjCell(adjCells, this.direction);
         }
 
-        const momentum: AdjacentCell | null = this.findAdjacentCell(adjacentCells, this.direction);
+        const momentum: AdjacentCell | null = this.findAdjacentCell(adjCells, this.direction);
         if (momentum) {
             this.moveTo(matrix, momentum);
         } else {
-            console.log("change momentum");
-            const adjacentCell: AdjacentCell = adjacentCells[Math.floor(Math.random() * adjacentCells.length)];
+            const adjacentCell: AdjacentCell = adjCells[Math.floor(Math.random() * adjCells.length)];
             this.moveTo(matrix, adjacentCell);
         }
 
@@ -64,7 +66,7 @@ export class Creature {
         }
     }
 
-    private removeAdjacentCell(adjacentCells: AdjacentCell[], direction: Direction): void {
+    private removeAdjCell(adjacentCells: AdjacentCell[], direction: Direction): void {
         const index = adjacentCells.findIndex(cell => cell.direction === direction);
         if (index !== -1) {
             adjacentCells.splice(index, 1);
@@ -103,5 +105,24 @@ export class Creature {
             }
         }
         return null;
+    }
+
+    private attackNeighbour(matrix: Matrix) {
+        const neighbours = [
+            new AdjacentCell(matrix, this.x, this.y - 1, Direction.Up),
+            new AdjacentCell(matrix, this.x + 1, this.y, Direction.Right),
+            new AdjacentCell(matrix, this.x, this.y + 1, Direction.Down),
+            new AdjacentCell(matrix, this.x - 1, this.y, Direction.Left)
+        ];
+        for (const adjCell of neighbours) {
+            if (adjCell.cell && !matrix.hasWall(matrix.cells[this.y][this.x], adjCell.direction)) {
+                const toAttack = adjCell.cell.creature;
+                if (toAttack && toAttack.cycleCount <= this.cycleCount && this.health > toAttack.health
+                    && toAttack.health > 0) {
+                    matrix.creatureAttacking(this, toAttack);
+                    return;
+                }
+            }
+        }
     }
 }

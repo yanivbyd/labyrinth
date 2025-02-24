@@ -1,4 +1,5 @@
 import { Cell, Food } from "./cell.js";
+import { Direction } from "./direction.js";
 export class Matrix {
     constructor(config, renderer) {
         this.width = config.matrixWidth;
@@ -123,8 +124,39 @@ export class Matrix {
         const x = Math.floor(Math.random() * (this.width - 2)) + 1;
         const y = Math.floor(Math.random() * (this.height - 2)) + 1;
         if (!this.cells[y][x].food && !this.cells[y][x].creature) {
-            this.cells[y][x].food = new Food(Math.ceil(Math.random() * 5));
+            this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
             this.renderer.foodAdded(this.cells[y][x]);
+        }
+    }
+    hasWall(cell, direction) {
+        switch (direction) {
+            case Direction.Down:
+                return cell.walls.bottom;
+            case Direction.Up:
+                return cell.walls.top;
+            case Direction.Left:
+                return cell.walls.left;
+            case Direction.Right:
+                return cell.walls.right;
+        }
+        return false;
+    }
+    creatureAttacking(attacker, defender) {
+        const attackerWinProbability = attacker.health / (attacker.health + defender.health);
+        const attackerWon = Math.random() < attackerWinProbability;
+        if (attackerWon) {
+            attacker.health += Math.floor(defender.health / 2);
+            defender.health = Math.ceil(defender.health / 2);
+            defender.battlesLost++;
+            attacker.battlesWon++;
+            console.log("defender lost, new health = " + defender.health);
+        }
+        else {
+            defender.health += Math.floor(attacker.health / 2);
+            attacker.health = Math.ceil(attacker.health / 2);
+            attacker.battlesLost++;
+            defender.battlesWon++;
+            console.log("attacker lost, new health = " + attacker.health);
         }
     }
 }
