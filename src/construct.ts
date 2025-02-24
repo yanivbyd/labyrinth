@@ -2,8 +2,10 @@
 
 import { Matrix } from './matrix.js';
 import { Creature } from "./creature.js";
+import {LabyrinthConfig} from "./config";
+import {CreatureTable} from "./creatureTable";
 
-export function constructCreatures(matrix: Matrix) {
+export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, creatureTable: CreatureTable) {
     let width = matrix.width;
     let height = matrix.height;
 
@@ -11,7 +13,7 @@ export function constructCreatures(matrix: Matrix) {
     let types = [0, 1, 2];
     let occupiedPositions = new Set<string>();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
         let x, y;
         let positionKey;
 
@@ -34,11 +36,13 @@ export function constructCreatures(matrix: Matrix) {
             type = Math.floor(Math.random() * 3);
         }
 
-        matrix.addCreature(new Creature(type, i), x, y);
+        const creature = new Creature(type, i, config.initialHealth);
+        matrix.addCreature(creature, x, y);
+        creatureTable.addCreature(creature);
     }
 }
 
-export function constructWalls(matrix: Matrix) {
+export function constructWalls(matrix: Matrix, config: LabyrinthConfig) {
     let width = matrix.width;
     let height = matrix.height;
 

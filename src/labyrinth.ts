@@ -3,21 +3,18 @@
 import { Matrix } from './matrix.js';
 import { MatrixRenderer } from './matrixRenderer.js';
 import {constructCreatures, constructWalls} from "./construct.js";
-
-async function loadConfig() {
-    const response = await fetch('./labyrinth.json');
-    return await response.json();
-}
+import {LabyrinthConfig, loadConfig} from "./config.js";
+import {CreatureTable} from "./creatureTable.js";
 
 async function initLabyrinth() {
-    const config = await loadConfig();
-    const { matrixWidth, matrixHeight, cellSizePx } = config;
+    const config: LabyrinthConfig  = await loadConfig();
 
-    const renderer = new MatrixRenderer('matrix-container', cellSizePx);
-    const matrix = new Matrix(matrixWidth, matrixHeight, renderer);
+    const renderer = new MatrixRenderer('matrix-container', config.cellSizePx);
+    const matrix = new Matrix(config.matrixWidth, config.matrixHeight, renderer);
+    const creatureTable = CreatureTable.getInstance();
 
-    constructWalls(matrix);
-    constructCreatures(matrix);
+    constructWalls(matrix, config);
+    constructCreatures(matrix, config, creatureTable);
 
     renderer.render(matrix);
 
@@ -42,7 +39,8 @@ async function initLabyrinth() {
                     matrix.cycle();
                 }, 100);
                 playStopButton.textContent = 'Stop';
-            } else {
+            }
+            else {
                 // Stop playing
                 window.clearInterval(intervalId);
                 intervalId = null;

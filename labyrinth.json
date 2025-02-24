@@ -1,5 +1,6 @@
 {
     "matrixWidth": 10,
     "matrixHeight": 10,
-    "cellSizePx": 100
+    "cellSizePx": 80,
+    "initialHealth": 10
 }

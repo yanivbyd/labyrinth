@@ -1,6 +1,7 @@
 // creature.ts
 
 import { Matrix } from './matrix';
+import {CreatureTable} from "./creatureTable.js";
 
 export class Creature {
     type: number;
@@ -10,11 +11,13 @@ export class Creature {
     y: number;
     cycleCount: number;
     direction: 'up' | 'down' | 'left' | 'right' | null;
+    health: number;
 
-    constructor(type: number, id: number) {
+    constructor(type: number, id: number, initialHealth: number) {
         this.type = type;
         this.id = id;
         this.div = null;
+        this.health = initialHealth;
         this.x = -1;
         this.y = -1;
         this.cycleCount = -1;
@@ -28,6 +31,7 @@ export class Creature {
         // 20% chance to change direction even if we have momentum
         if (Math.random() < 0.2) {
             this.direction = null;
+            this.health++;
         }
 
         if (this.direction) {
@@ -83,6 +87,8 @@ export class Creature {
                 console.log(`moving to (${newX}, ${newY})`);
                 matrix.moveCreature(this, newX, newY);
                 this.direction = direction; // Set the new direction
+
+                this.updateUI();
                 return;
             }
         }
@@ -90,4 +96,10 @@ export class Creature {
         // If we couldn't move in any direction, reset the direction
         this.direction = null;
     }
+
+    updateUI() {
+        CreatureTable.getInstance().updateCreature(this);
+    }
+
+
 }

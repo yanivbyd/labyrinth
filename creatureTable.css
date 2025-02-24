@@ -1,0 +1,63 @@
+/* creatureTable.css */
+
+.table-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.creature-table {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 300px;
+    margin: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.creature-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+
+.creature-table th,
+.creature-table td {
+    padding: 12px 15px;
+}
+
+.creature-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.creature-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.creature-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+.creature-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+/* New styles for creature balls */
+.creature-ball {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.creature_0 {
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #ee5253);
+}
+
+.creature_1 {
+    background: radial-gradient(circle at 30% 30%, #54a0ff, #2e86de);
+}
+
+.creature_2 {
+    background: radial-gradient(circle at 30% 30%, #5f27cd, #341f97);
+}
