@@ -17,7 +17,7 @@ function initLabyrinth() {
     return __awaiter(this, void 0, void 0, function* () {
         const config = yield loadConfig();
         const renderer = new MatrixRenderer('matrix-container', config.cellSizePx);
-        const matrix = new Matrix(config.matrixWidth, config.matrixHeight, renderer);
+        const matrix = new Matrix(config, renderer);
         const creatureTable = CreatureTable.getInstance();
         constructWalls(matrix, config);
         constructCreatures(matrix, config, creatureTable);

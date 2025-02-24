@@ -1,6 +1,7 @@
 import {MatrixRenderer} from "./matrixRenderer";
 import {Creature} from "./creature";
 import {Cell, Food} from "./cell.js";
+import {LabyrinthConfig} from "./config";
 
 export class Matrix {
     width: number;
@@ -8,17 +9,19 @@ export class Matrix {
     cells: Cell[][];
     renderer: MatrixRenderer;
     cycleCount: number;
+    config: LabyrinthConfig;
 
-    constructor(width: number, height: number, renderer: MatrixRenderer) {
-        this.width = width;
-        this.height = height;
+    constructor(config: LabyrinthConfig, renderer: MatrixRenderer) {
+        this.width = config.matrixWidth;
+        this.height = config.matrixHeight;
         this.cells = [];
         this.renderer = renderer;
         this.cycleCount = -1;
+        this.config = config;
 
-        for (let y = 0; y < height; y++) {
+        for (let y = 0; y < this.height; y++) {
             this.cells[y] = [];
-            for (let x = 0; x < width; x++) {
+            for (let x = 0; x < this.width; x++) {
                 this.cells[y][x] = new Cell(x, y);
             }
         }
@@ -105,7 +108,7 @@ export class Matrix {
             creature.y = toY;
 
             if (toCell.food != null) {
-                creature.health += toCell.food.amount;
+                creature.health = Math.min(creature.health + toCell.food.amount, this.config.maxHealth);
                 this.renderer.removeFood(toCell.food);
                 toCell.food = null;
             }
