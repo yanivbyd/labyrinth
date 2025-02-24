@@ -1,0 +1,15 @@
+{
+  "name": "labyrinth",
+  "version": "1.0.0",
+  "description": "Creatures living in a maze, their behavior is automated",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "watch": "tsc --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
