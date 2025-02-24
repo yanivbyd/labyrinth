@@ -3,6 +3,7 @@
 import { Matrix } from './matrix';
 
 export class Creature {
+    type: number;
     id: number;
     div: HTMLDivElement | null;
     x: number;
@@ -10,7 +11,8 @@ export class Creature {
     cycleCount: number;
     direction: 'up' | 'down' | 'left' | 'right' | null;
 
-    constructor(id: number) {
+    constructor(type: number, id: number) {
+        this.type = type;
         this.id = id;
         this.div = null;
         this.x = -1;

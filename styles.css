@@ -64,5 +64,16 @@ h1 {
     width: 60%; /* Adjust based on your creatureSize */
     height: 60%; /* Adjust based on your creatureSize */
     border-radius: 50%;
+}
+
+.creature_0 {
     background-color: red;
+}
+
+.creature_1 {
+    background-color: blue;
+}
+
+.creature_2 {
+    background-color: purple;
 }

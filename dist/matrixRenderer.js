@@ -41,6 +41,7 @@ export class MatrixRenderer {
     createCreatureDiv(creature) {
         const creatureDiv = document.createElement('div');
         creatureDiv.classList.add('creature');
+        creatureDiv.classList.add('creature_' + creature.type);
         creatureDiv.style.width = `${this.creatureSize}px`;
         creatureDiv.style.height = `${this.creatureSize}px`;
         creature.div = creatureDiv;

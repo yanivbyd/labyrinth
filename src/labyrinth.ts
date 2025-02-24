@@ -16,15 +16,9 @@ async function initLabyrinth() {
     const renderer = new MatrixRenderer('matrix-container', cellSizePx);
     const matrix = new Matrix(matrixWidth, matrixHeight, renderer);
 
-    constructWalls(matrix, matrixWidth, matrixHeight)
+    constructWalls(matrix);
+    constructCreatures(matrix);
 
-    // Add a creature (moved to (1,1) to avoid starting in the surrounding wall)
-    matrix.addCreature(new Creature(1), 1, 1);
-    matrix.addCreature(new Creature(2), 5, 7);
-    matrix.addCreature(new Creature(3), 7, 9);
-    matrix.addCreature(new Creature(3), 7, 2);
-
-    // Render the matrix
     renderer.render(matrix);
 
     // Set up the cycle button
@@ -56,9 +50,47 @@ async function initLabyrinth() {
             }
         });
     }
-
 }
-function constructWalls(matrix: Matrix, width: number, height: number) {
+
+function constructCreatures(matrix: Matrix) {
+    let width = matrix.width;
+    let height = matrix.height;
+
+    // Ensure we have one of each type
+    let types = [0, 1, 2];
+    let occupiedPositions = new Set<string>();
+
+    for (let i = 0; i < 5; i++) {
+        let x, y;
+        let positionKey;
+
+        // Keep generating positions until we find an unoccupied one
+        do {
+            x = Math.floor(Math.random() * (width - 2)) + 1;
+            y = Math.floor(Math.random() * (height - 2)) + 1;
+            positionKey = `${x},${y}`;
+        } while (occupiedPositions.has(positionKey));
+
+        // Mark this position as occupied
+        occupiedPositions.add(positionKey);
+
+        let type;
+        if (i < 3) {
+            // For the first three creatures, use each type once
+            type = types.pop()!;
+        } else {
+            // For the remaining creatures, choose randomly
+            type = Math.floor(Math.random() * 3);
+        }
+
+        matrix.addCreature(new Creature(type, i), x, y);
+    }
+}
+
+function constructWalls(matrix: Matrix) {
+    let width = matrix.width;
+    let height = matrix.height;
+
     // Add surrounding walls
     for (let x = 0; x < width; x++) {
         matrix.addWall(x, 0, 'top');
