@@ -36,7 +36,6 @@ export class Creature {
         if (adjCells.length == 0) return;
 
         if (this.moveToAdjacentFood(matrix, adjCells)) {
-            console.log("move to food");
             return;
         }
         if (adjCells.length > 1 && this.direction) {

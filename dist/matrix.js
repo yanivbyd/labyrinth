@@ -142,21 +142,21 @@ export class Matrix {
         return false;
     }
     creatureAttacking(attacker, defender) {
+        var _a, _b;
         const attackerWinProbability = attacker.health / (attacker.health + defender.health);
         const attackerWon = Math.random() < attackerWinProbability;
-        if (attackerWon) {
-            attacker.health += Math.floor(defender.health / 2);
-            defender.health = Math.ceil(defender.health / 2);
-            defender.battlesLost++;
-            attacker.battlesWon++;
-            console.log("defender lost, new health = " + defender.health);
-        }
-        else {
-            defender.health += Math.floor(attacker.health / 2);
-            attacker.health = Math.ceil(attacker.health / 2);
-            attacker.battlesLost++;
-            defender.battlesWon++;
-            console.log("attacker lost, new health = " + attacker.health);
-        }
+        const winner = attackerWon ? attacker : defender;
+        const loser = attacker ? defender : attacker;
+        winner.health += Math.floor(loser.health / 2);
+        loser.health = Math.ceil(loser.health / 2);
+        winner.battlesWon++;
+        loser.battlesLost++;
+        (_a = winner.div) === null || _a === void 0 ? void 0 : _a.classList.add('won_fight');
+        (_b = loser.div) === null || _b === void 0 ? void 0 : _b.classList.add('lost_fight');
+        setTimeout(() => {
+            var _a, _b;
+            (_a = winner.div) === null || _a === void 0 ? void 0 : _a.classList.remove('won_fight');
+            (_b = loser.div) === null || _b === void 0 ? void 0 : _b.classList.remove('lost_fight');
+        }, 2000); // 500ms matches the animation duration
     }
 }

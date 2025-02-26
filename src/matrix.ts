@@ -170,18 +170,19 @@ export class Matrix {
         const attackerWinProbability = attacker.health / (attacker.health + defender.health);
         const attackerWon = Math.random() < attackerWinProbability;
 
-        if (attackerWon) {
-            attacker.health += Math.floor(defender.health / 2);
-            defender.health = Math.ceil(defender.health / 2);
-            defender.battlesLost++;
-            attacker.battlesWon++;
-            console.log("defender lost, new health = " + defender.health);
-        } else {
-            defender.health += Math.floor(attacker.health / 2);
-            attacker.health = Math.ceil(attacker.health / 2);
-            attacker.battlesLost++;
-            defender.battlesWon++;
-            console.log("attacker lost, new health = " + attacker.health);
-        }
+        const winner = attackerWon ? attacker : defender;
+        const loser = attacker ? defender : attacker;
+
+        winner.health += Math.floor(loser.health / 2);
+        loser.health = Math.ceil(loser.health / 2);
+        winner.battlesWon++;
+        loser.battlesLost++;
+
+        winner.div?.classList.add('won_fight');
+        loser.div?.classList.add('lost_fight');
+        setTimeout(() => {
+            winner.div?.classList.remove('won_fight');
+            loser.div?.classList.remove('lost_fight');
+        }, 2000); // 500ms matches the animation duration
     }
 }
