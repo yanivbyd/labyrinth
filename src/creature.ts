@@ -2,7 +2,7 @@
 
 import { Matrix } from './matrix';
 import { CreatureTable } from "./creatureTable.js";
-import {AdjacentCell, Direction, getOppositeDirection} from "./direction.js";
+import {AdjacentCell, Direction, getNewX, getNewY, getOppositeDirection} from "./direction.js";
 
 export class Creature {
     type: number;
@@ -15,12 +15,14 @@ export class Creature {
     battlesLost: number = 0;
     direction: Direction | null = null;
     health: number;
+    watchRadius: number;
 
-    constructor(type: number, id: number, initialHealth: number) {
+    constructor(type: number, id: number, initialHealth: number, watchRadius: number) {
         this.type = type;
         this.id = id;
         this.div = null;
         this.health = initialHealth;
+        this.watchRadius = watchRadius;
     }
 
     updateUI() {
@@ -30,14 +32,12 @@ export class Creature {
     cycle(matrix: Matrix) {
         if (this.cycleCount == matrix.cycleCount) return;
         this.cycleCount = matrix.cycleCount;
-        this.attackNeighbour(matrix);
+        if (this.attackNeighbour(matrix)) return;
+        if (this.moveTowardsFood(matrix)) return;
 
-        const adjCells: AdjacentCell[] = this.getAdjacentCells(matrix);
+        const adjCells: AdjacentCell[] = this.getAdjCells(matrix);
         if (adjCells.length == 0) return;
 
-        if (this.moveToAdjacentFood(matrix, adjCells)) {
-            return;
-        }
         if (adjCells.length > 1 && this.direction) {
             // don't go back unless you have to
             this.removeAdjCell(adjCells, getOppositeDirection(this.direction));
@@ -58,11 +58,14 @@ export class Creature {
         this.updateUI();
     }
 
-    private moveTo(matrix: Matrix, adjacentCell: AdjacentCell) {
+    private moveTo(matrix: Matrix, adjacentCell: AdjacentCell): boolean {
         if (adjacentCell.cell) {
-            matrix.moveCreature(this, adjacentCell.cell.x, adjacentCell.cell.y);
-            this.direction = adjacentCell.direction;
+            if (matrix.moveCreature(this, adjacentCell.cell.x, adjacentCell.cell.y) != null) {
+                this.direction = adjacentCell.direction;
+                return true;
+            }
         }
+        return false;
     }
 
     private removeAdjCell(adjacentCells: AdjacentCell[], direction: Direction): void {
@@ -72,21 +75,11 @@ export class Creature {
         }
     }
 
-    private moveToAdjacentFood(matrix: Matrix, adjacentCells: AdjacentCell[]): boolean {
-        for (const adjacentCell of adjacentCells) {
-            if (adjacentCell.cell?.food) {
-                this.moveTo(matrix, adjacentCell);
-                return true;
-            }
-        }
-        return false;
-    }
-
     private shouldKeepMomentum(): boolean {
         return Math.random() >= (this.type / 20.0);
     }
 
-    private getAdjacentCells(matrix: Matrix): AdjacentCell[] {
+    private getAdjCells(matrix: Matrix): AdjacentCell[] {
         return [
             new AdjacentCell(matrix, this.x, this.y - 1, Direction.Up),
             new AdjacentCell(matrix, this.x + 1, this.y, Direction.Right),
@@ -106,7 +99,7 @@ export class Creature {
         return null;
     }
 
-    private attackNeighbour(matrix: Matrix) {
+    private attackNeighbour(matrix: Matrix): boolean {
         const neighbours = [
             new AdjacentCell(matrix, this.x, this.y - 1, Direction.Up),
             new AdjacentCell(matrix, this.x + 1, this.y, Direction.Right),
@@ -119,9 +112,65 @@ export class Creature {
                 if (toAttack && toAttack.cycleCount <= this.cycleCount && this.health > toAttack.health
                     && toAttack.health > 0) {
                     matrix.creatureAttacking(this, toAttack);
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     }
+
+    private moveTowardsFood(matrix: Matrix): boolean {
+        class QueueItem {
+            x: number;
+            y: number;
+            steps : number;
+            direction: Direction | null;
+
+            constructor(x: number, y: number, steps: number, direction: Direction | null) {
+                this.x = x;
+                this.y = y;
+                this.steps = steps;
+                this.direction = direction;
+            }
+        }
+
+        const directions: Direction[] = [Direction.Up, Direction.Right, Direction.Down, Direction.Left];
+        const queue: QueueItem[] = [new QueueItem(this.x, this.y, 0, null)];
+        const visited: Set<string> = new Set();
+
+        if (matrix.cells[this.y][this.x].food) return false;
+
+        while (queue.length > 0) {
+            const queueItem = queue.shift()!;
+
+            if (matrix.cells[queueItem.y][queueItem.x].food && queueItem.direction) {
+                return this.moveTo(matrix, new AdjacentCell(matrix,
+                    getNewX(this.x, queueItem.direction),
+                    getNewY(this.y, queueItem.direction),
+                    queueItem.direction));
+            }
+
+            if (queueItem.steps < this.watchRadius) {
+                for (const direction of directions) {
+                    const newX = getNewX(queueItem.x, direction);
+                    const newY = getNewY(queueItem.y, direction);
+                    const key = `${newX},${newY}`;
+
+                    if (
+                        !visited.has(key) &&
+                        matrix.isValidPosition(newX, newY) &&
+                        !matrix.cells[newY][newX].creature &&
+                        !matrix.hasWall(matrix.cells[queueItem.y][queueItem.x], direction)
+                    ) {
+                        visited.add(key);
+                        queue.push(new QueueItem(newX, newY, queueItem.steps+1,
+                            queueItem.direction || direction));
+                    }
+                }
+            }
+        }
+
+        return false; // No food found within watch radius
+    }
+
 }

@@ -91,6 +91,7 @@ export class Matrix {
     }
 
     canCreatureMoveTo(creature: Creature, toX: number, toY: number): boolean {
+        if (toX < 0 || toX >= this.width || toY < 0 || toY >= this.height) return false;
         const fromCell = this.getCell(creature.x, creature.y);
         const toCell = this.getCell(toX, toY);
         return fromCell != null && toCell != null &&
@@ -121,7 +122,7 @@ export class Matrix {
 
     cycle() {
         this.cycleCount++;
-        if (Math.random() < 0.05) {
+        if (Math.random() < 0.15) {
             this.addFood();
         }
 
@@ -184,5 +185,10 @@ export class Matrix {
             winner.div?.classList.remove('won_fight');
             loser.div?.classList.remove('lost_fight');
         }, 2000); // 500ms matches the animation duration
+    }
+
+    isValidPosition(x: number, y: number) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+        return true;
     }
 }

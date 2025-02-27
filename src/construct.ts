@@ -34,7 +34,7 @@ export function constructCreatures(matrix: Matrix, config: LabyrinthConfig, crea
             type = Math.floor(Math.random() * numberOfTypes);
         }
 
-        const creature = new Creature(type, i, config.initialHealth);
+        const creature = new Creature(type, i, config.initialHealth, config.initialWatchRadius);
         matrix.addCreature(creature, x, y);
         creatureTable.addCreature(creature);
     }

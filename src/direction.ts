@@ -22,6 +22,14 @@ export class AdjacentCell {
     }
 }
 
+export function getNewX(x: number, direction: Direction): number {
+    return x + (direction === Direction.Right ? 1 : direction === Direction.Left ? -1 : 0);
+}
+
+export function getNewY(y: number, direction: Direction): number {
+    return y + (direction === Direction.Down ? 1 : direction === Direction.Up ? -1 : 0);
+}
+
 export function getOppositeDirection(direction: Direction): Direction {
     switch (direction) {
         case Direction.Down:

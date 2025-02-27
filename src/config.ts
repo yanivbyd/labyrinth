@@ -6,6 +6,7 @@ export class LabyrinthConfig {
     cellSizePx: number = 0;
     initialHealth: number = 0;
     maxHealth: number = 0;
+    initialWatchRadius: number = 0;
 }
 
 export async function loadConfig(): Promise<LabyrinthConfig> {
@@ -17,6 +18,7 @@ export async function loadConfig(): Promise<LabyrinthConfig> {
     conf.cellSizePx = respJson.cellSizePx;
     conf.initialHealth = respJson.initialHealth;
     conf.maxHealth = respJson.maxHealth;
+    conf.initialWatchRadius = respJson.initialWatchRadius;
     return conf;
 }
 
