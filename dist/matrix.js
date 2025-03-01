@@ -1,5 +1,5 @@
 import { Cell, Food } from "./cell.js";
-import { Direction } from "./direction.js";
+import { Direction, getOppositeDirection } from "./direction.js";
 export class Matrix {
     constructor(config, renderer) {
         this.width = config.matrixWidth;
@@ -28,26 +28,21 @@ export class Matrix {
             // Add wall to adjacent cell
             let adjacentCell = null;
             switch (direction) {
-                case 'top':
+                case Direction.Up:
                     adjacentCell = this.getCell(x, y - 1);
-                    if (adjacentCell)
-                        adjacentCell.walls.bottom = true;
                     break;
-                case 'right':
+                case Direction.Right:
                     adjacentCell = this.getCell(x + 1, y);
-                    if (adjacentCell)
-                        adjacentCell.walls.left = true;
                     break;
-                case 'bottom':
+                case Direction.Down:
                     adjacentCell = this.getCell(x, y + 1);
-                    if (adjacentCell)
-                        adjacentCell.walls.top = true;
                     break;
-                case 'left':
+                case Direction.Left:
                     adjacentCell = this.getCell(x - 1, y);
-                    if (adjacentCell)
-                        adjacentCell.walls.right = true;
                     break;
+            }
+            if (adjacentCell) {
+                adjacentCell.walls[getOppositeDirection(direction)] = true;
             }
         }
     }
@@ -66,10 +61,10 @@ export class Matrix {
             return false;
         }
         if (fromX === toX && Math.abs(fromY - toY) === 1) {
-            return !fromCell.walls[fromY < toY ? 'bottom' : 'top'];
+            return !fromCell.walls[fromY < toY ? Direction.Down : Direction.Up];
         }
         if (fromY === toY && Math.abs(fromX - toX) === 1) {
-            return !fromCell.walls[fromX < toX ? 'right' : 'left'];
+            return !fromCell.walls[fromX < toX ? Direction.Right : Direction.Left];
         }
         return false;
     }
@@ -130,19 +125,6 @@ export class Matrix {
             this.renderer.foodAdded(this.cells[y][x]);
         }
     }
-    hasWall(cell, direction) {
-        switch (direction) {
-            case Direction.Down:
-                return cell.walls.bottom;
-            case Direction.Up:
-                return cell.walls.top;
-            case Direction.Left:
-                return cell.walls.left;
-            case Direction.Right:
-                return cell.walls.right;
-        }
-        return false;
-    }
     creatureAttacking(attacker, defender) {
         var _a, _b;
         const attackerWinProbability = attacker.health / (attacker.health + defender.health);
@@ -150,6 +132,7 @@ export class Matrix {
         const winner = attackerWon ? attacker : defender;
         const loser = attacker ? defender : attacker;
         winner.health += Math.floor(loser.health / 2);
+        winner.health = Math.min(winner.health, this.config.maxHealth);
         loser.health = Math.ceil(loser.health / 2);
         winner.battlesWon++;
         loser.battlesLost++;

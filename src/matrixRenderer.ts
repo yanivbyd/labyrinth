@@ -1,6 +1,7 @@
 import {Matrix} from './matrix';
 import {Creature} from "./creature";
 import {Cell, Food} from "./cell";
+import {allDirections, Direction} from "./direction.js";
 
 export class MatrixRenderer {
     private matrix: Matrix | null;
@@ -71,39 +72,39 @@ export class MatrixRenderer {
         cellDiv.style.position = 'relative';
 
         // Add walls
-        if (cell.walls.top) this.addWallToCell(cellDiv, 'top');
-        if (cell.walls.right) this.addWallToCell(cellDiv, 'right');
-        if (cell.walls.bottom) this.addWallToCell(cellDiv, 'bottom');
-        if (cell.walls.left) this.addWallToCell(cellDiv, 'left');
-
+        for (const direction of allDirections) {
+            if (cell.walls[direction]) {
+                this.addWallToCell(cellDiv, direction);
+            }
+        }
         return cellDiv;
     }
 
-    private addWallToCell(cellDiv: HTMLDivElement, direction: 'top' | 'right' | 'bottom' | 'left'): void {
+    private addWallToCell(cellDiv: HTMLDivElement, direction: Direction): void {
         const wallDiv = document.createElement('div');
         wallDiv.style.position = 'absolute';
         wallDiv.style.backgroundColor = 'black';
 
         switch (direction) {
-            case 'top':
+            case Direction.Up:
                 wallDiv.style.top = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.height = '1px';
                 break;
-            case 'right':
+            case Direction.Right:
                 wallDiv.style.top = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.bottom = '0';
                 wallDiv.style.width = '1px';
                 break;
-            case 'bottom':
+            case Direction.Down:
                 wallDiv.style.bottom = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.height = '1px';
                 break;
-            case 'left':
+            case Direction.Left:
                 wallDiv.style.top = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.bottom = '0';

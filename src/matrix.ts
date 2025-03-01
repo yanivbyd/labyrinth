@@ -2,7 +2,7 @@ import {MatrixRenderer} from "./matrixRenderer";
 import {Creature} from "./creature";
 import {Cell, Food} from "./cell.js";
 import {LabyrinthConfig} from "./config";
-import {Direction} from "./direction.js";
+import {Direction, getOppositeDirection} from "./direction.js";
 
 export class Matrix {
     width: number;
@@ -35,30 +35,31 @@ export class Matrix {
         return null;
     }
 
-    addWall(x: number, y: number, direction: 'top' | 'right' | 'bottom' | 'left'): void {
+    addWall(x: number, y: number, direction: Direction): void {
         const cell = this.getCell(x, y);
         if (cell) {
             cell.walls[direction] = true;
 
             // Add wall to adjacent cell
             let adjacentCell: Cell | null = null;
+
             switch (direction) {
-                case 'top':
+                case Direction.Up:
                     adjacentCell = this.getCell(x, y - 1);
-                    if (adjacentCell) adjacentCell.walls.bottom = true;
                     break;
-                case 'right':
+                case Direction.Right:
                     adjacentCell = this.getCell(x + 1, y);
-                    if (adjacentCell) adjacentCell.walls.left = true;
                     break;
-                case 'bottom':
+                case Direction.Down:
                     adjacentCell = this.getCell(x, y + 1);
-                    if (adjacentCell) adjacentCell.walls.top = true;
                     break;
-                case 'left':
+                case Direction.Left:
                     adjacentCell = this.getCell(x - 1, y);
-                    if (adjacentCell) adjacentCell.walls.right = true;
                     break;
+            }
+
+            if (adjacentCell) {
+                adjacentCell.walls[getOppositeDirection(direction)] = true;
             }
         }
     }
@@ -80,11 +81,11 @@ export class Matrix {
         }
 
         if (fromX === toX && Math.abs(fromY - toY) === 1) {
-            return !fromCell.walls[fromY < toY ? 'bottom' : 'top'];
+            return !fromCell.walls[fromY < toY ? Direction.Down : Direction.Up];
         }
 
         if (fromY === toY && Math.abs(fromX - toX) === 1) {
-            return !fromCell.walls[fromX < toX ? 'right' : 'left'];
+            return !fromCell.walls[fromX < toX ? Direction.Right : Direction.Left];
         }
 
         return false;
@@ -151,20 +152,6 @@ export class Matrix {
             this.cells[y][x].food = new Food(Math.ceil(Math.random() * 10));
             this.renderer.foodAdded(this.cells[y][x]);
         }
-    }
-
-    hasWall(cell: Cell, direction: Direction): boolean {
-        switch (direction) {
-            case Direction.Down:
-                return cell.walls.bottom;
-            case Direction.Up:
-                return cell.walls.top;
-            case Direction.Left:
-                return cell.walls.left;
-            case Direction.Right:
-                return cell.walls.right;
-        }
-        return false;
     }
 
     creatureAttacking(attacker: Creature, defender: Creature) {

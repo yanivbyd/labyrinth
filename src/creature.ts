@@ -2,7 +2,7 @@
 
 import { Matrix } from './matrix';
 import { CreatureTable } from "./creatureTable.js";
-import {AdjacentCell, Direction, getNewX, getNewY, getOppositeDirection} from "./direction.js";
+import {AdjacentCell, allDirections, Direction, getNewX, getNewY, getOppositeDirection} from "./direction.js";
 
 export class Creature {
     type: number;
@@ -107,7 +107,7 @@ export class Creature {
             new AdjacentCell(matrix, this.x - 1, this.y, Direction.Left)
         ];
         for (const adjCell of neighbours) {
-            if (adjCell.cell && !matrix.hasWall(matrix.cells[this.y][this.x], adjCell.direction)) {
+            if (adjCell.cell && !matrix.cells[this.y][this.x].walls[adjCell.direction]) {
                 const toAttack = adjCell.cell.creature;
                 if (toAttack && toAttack.cycleCount <= this.cycleCount && this.health > toAttack.health
                     && toAttack.health > 0) {
@@ -134,7 +134,6 @@ export class Creature {
             }
         }
 
-        const directions: Direction[] = [Direction.Up, Direction.Right, Direction.Down, Direction.Left];
         const queue: QueueItem[] = [new QueueItem(this.x, this.y, 0, null)];
         const visited: Set<string> = new Set();
 
@@ -151,7 +150,7 @@ export class Creature {
             }
 
             if (queueItem.steps < this.watchRadius) {
-                for (const direction of directions) {
+                for (const direction of allDirections) {
                     const newX = getNewX(queueItem.x, direction);
                     const newY = getNewY(queueItem.y, direction);
                     const key = `${newX},${newY}`;
@@ -160,7 +159,7 @@ export class Creature {
                         !visited.has(key) &&
                         matrix.isValidPosition(newX, newY) &&
                         !matrix.cells[newY][newX].creature &&
-                        !matrix.hasWall(matrix.cells[queueItem.y][queueItem.x], direction)
+                        !matrix.cells[queueItem.y][queueItem.x].walls[direction]
                     ) {
                         visited.add(key);
                         queue.push(new QueueItem(newX, newY, queueItem.steps+1,

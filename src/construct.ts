@@ -1,7 +1,8 @@
 // construct.ts
 
-import { Matrix } from './matrix.js';
-import { Creature } from "./creature.js";
+import {Direction} from "./direction.js";
+import {Matrix} from './matrix.js';
+import {Creature} from "./creature.js";
 import {LabyrinthConfig} from "./config";
 import {CreatureTable} from "./creatureTable";
 
@@ -46,12 +47,12 @@ export function constructWalls(matrix: Matrix, config: LabyrinthConfig) {
 
     // Add surrounding walls
     for (let x = 0; x < width; x++) {
-        matrix.addWall(x, 0, 'top');
-        matrix.addWall(x, height - 1, 'bottom');
+        matrix.addWall(x, 0, Direction.Up);
+        matrix.addWall(x, height - 1, Direction.Down);
     }
     for (let y = 0; y < height; y++) {
-        matrix.addWall(0, y, 'left');
-        matrix.addWall(width - 1, y, 'right');
+        matrix.addWall(0, y, Direction.Left);
+        matrix.addWall(width - 1, y, Direction.Right);
     }
 
     // Add some internal walls to create a more interesting labyrinth
@@ -62,7 +63,7 @@ export function constructWalls(matrix: Matrix, config: LabyrinthConfig) {
         let startY = Math.floor(Math.random() * (height - wallLength));
         for (let y = startY; y < startY + wallLength; y++) {
             if (Math.random() < 0.8) { // 80% chance to add a wall segment
-                matrix.addWall(x, y, Math.random() < 0.5 ? 'right' : 'left');
+                matrix.addWall(x, y, Math.random() < 0.5 ? Direction.Right : Direction.Left);
             }
         }
     }
@@ -73,7 +74,7 @@ export function constructWalls(matrix: Matrix, config: LabyrinthConfig) {
         let startX = Math.floor(Math.random() * (width - wallLength));
         for (let x = startX; x < startX + wallLength; x++) {
             if (Math.random() < 0.8) { // 80% chance to add a wall segment
-                matrix.addWall(x, y, Math.random() < 0.5 ? 'bottom' : 'top');
+                matrix.addWall(x, y, Math.random() < 0.5 ? Direction.Down : Direction.Up);
             }
         }
     }
@@ -82,7 +83,7 @@ export function constructWalls(matrix: Matrix, config: LabyrinthConfig) {
     for (let i = 0; i < 30; i++) {
         const x = Math.floor(Math.random() * (width - 2)) + 1;
         const y = Math.floor(Math.random() * (height - 2)) + 1;
-        const direction = Math.random() < 0.5 ? 'right' : 'bottom';
+        const direction: Direction = Math.random() < 0.5 ? Direction.Right : Direction.Down;
         matrix.addWall(x, y, direction);
     }
 }

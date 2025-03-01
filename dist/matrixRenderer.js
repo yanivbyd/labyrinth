@@ -1,3 +1,4 @@
+import { allDirections, Direction } from "./direction.js";
 export class MatrixRenderer {
     constructor(containerId, cellSizePx) {
         var _a, _b;
@@ -55,14 +56,11 @@ export class MatrixRenderer {
         cellDiv.style.border = '1px solid #fff';
         cellDiv.style.position = 'relative';
         // Add walls
-        if (cell.walls.top)
-            this.addWallToCell(cellDiv, 'top');
-        if (cell.walls.right)
-            this.addWallToCell(cellDiv, 'right');
-        if (cell.walls.bottom)
-            this.addWallToCell(cellDiv, 'bottom');
-        if (cell.walls.left)
-            this.addWallToCell(cellDiv, 'left');
+        for (const direction of allDirections) {
+            if (cell.walls[direction]) {
+                this.addWallToCell(cellDiv, direction);
+            }
+        }
         return cellDiv;
     }
     addWallToCell(cellDiv, direction) {
@@ -70,25 +68,25 @@ export class MatrixRenderer {
         wallDiv.style.position = 'absolute';
         wallDiv.style.backgroundColor = 'black';
         switch (direction) {
-            case 'top':
+            case Direction.Up:
                 wallDiv.style.top = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.height = '1px';
                 break;
-            case 'right':
+            case Direction.Right:
                 wallDiv.style.top = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.bottom = '0';
                 wallDiv.style.width = '1px';
                 break;
-            case 'bottom':
+            case Direction.Down:
                 wallDiv.style.bottom = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.right = '0';
                 wallDiv.style.height = '1px';
                 break;
-            case 'left':
+            case Direction.Left:
                 wallDiv.style.top = '0';
                 wallDiv.style.left = '0';
                 wallDiv.style.bottom = '0';

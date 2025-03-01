@@ -8,6 +8,8 @@ export enum Direction {
     Right = 'right'
 }
 
+export const allDirections: Direction[] = [Direction.Up, Direction.Right, Direction.Down, Direction.Left];
+
 export class AdjacentCell {
     direction: Direction;
     cell: Cell | null;
