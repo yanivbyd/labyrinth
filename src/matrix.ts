@@ -175,6 +175,7 @@ export class Matrix {
         const loser = attacker ? defender : attacker;
 
         winner.health += Math.floor(loser.health / 2);
+        winner.health = Math.min(winner.health, this.config.maxHealth);
         loser.health = Math.ceil(loser.health / 2);
         winner.battlesWon++;
         loser.battlesLost++;

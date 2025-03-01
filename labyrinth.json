@@ -2,7 +2,7 @@
     "matrixWidth": 30,
     "matrixHeight": 20,
     "cellSizePx": 50,
-    "initialHealth": 10,
-    "maxHealth": 50,
+    "initialHealth": 15,
+    "maxHealth": 100,
     "initialWatchRadius": 5
 }
