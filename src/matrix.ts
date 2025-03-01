@@ -35,35 +35,42 @@ export class Matrix {
         return null;
     }
 
+    private getAdjCell(x: number, y: number, direction: Direction): Cell | null {
+        switch (direction) {
+            case Direction.Up:
+                return this.getCell(x, y - 1);
+            case Direction.Right:
+                return this.getCell(x + 1, y);
+            case Direction.Down:
+                return this.getCell(x, y + 1);
+            case Direction.Left:
+                return this.getCell(x - 1, y);
+        }
+    }
+
     addWall(x: number, y: number, direction: Direction): void {
         const cell = this.getCell(x, y);
         if (cell) {
             cell.walls[direction] = true;
 
-            // Add wall to adjacent cell
-            let adjacentCell: Cell | null = null;
-
-            switch (direction) {
-                case Direction.Up:
-                    adjacentCell = this.getCell(x, y - 1);
-                    break;
-                case Direction.Right:
-                    adjacentCell = this.getCell(x + 1, y);
-                    break;
-                case Direction.Down:
-                    adjacentCell = this.getCell(x, y + 1);
-                    break;
-                case Direction.Left:
-                    adjacentCell = this.getCell(x - 1, y);
-                    break;
-            }
-
+            const adjacentCell = this.getAdjCell(x, y, direction);
             if (adjacentCell) {
                 adjacentCell.walls[getOppositeDirection(direction)] = true;
             }
         }
     }
 
+    removeWall(x: number, y: number, direction: Direction): void {
+        const cell = this.getCell(x, y);
+        if (cell) {
+            cell.walls[direction] = false;
+
+            const adjacentCell = this.getAdjCell(x, y, direction);
+            if (adjacentCell) {
+                adjacentCell.walls[getOppositeDirection(direction)] = false;
+            }
+        }
+    }
     addCreature(creature: Creature, x: number, y: number): boolean {
         const cell = this.getCell(x, y);
         if (cell && !cell.creature) {

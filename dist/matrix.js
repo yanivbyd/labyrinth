@@ -21,28 +21,35 @@ export class Matrix {
         }
         return null;
     }
+    getAdjCell(x, y, direction) {
+        switch (direction) {
+            case Direction.Up:
+                return this.getCell(x, y - 1);
+            case Direction.Right:
+                return this.getCell(x + 1, y);
+            case Direction.Down:
+                return this.getCell(x, y + 1);
+            case Direction.Left:
+                return this.getCell(x - 1, y);
+        }
+    }
     addWall(x, y, direction) {
         const cell = this.getCell(x, y);
         if (cell) {
             cell.walls[direction] = true;
-            // Add wall to adjacent cell
-            let adjacentCell = null;
-            switch (direction) {
-                case Direction.Up:
-                    adjacentCell = this.getCell(x, y - 1);
-                    break;
-                case Direction.Right:
-                    adjacentCell = this.getCell(x + 1, y);
-                    break;
-                case Direction.Down:
-                    adjacentCell = this.getCell(x, y + 1);
-                    break;
-                case Direction.Left:
-                    adjacentCell = this.getCell(x - 1, y);
-                    break;
-            }
+            const adjacentCell = this.getAdjCell(x, y, direction);
             if (adjacentCell) {
                 adjacentCell.walls[getOppositeDirection(direction)] = true;
+            }
+        }
+    }
+    removeWall(x, y, direction) {
+        const cell = this.getCell(x, y);
+        if (cell) {
+            cell.walls[direction] = false;
+            const adjacentCell = this.getAdjCell(x, y, direction);
+            if (adjacentCell) {
+                adjacentCell.walls[getOppositeDirection(direction)] = false;
             }
         }
     }
