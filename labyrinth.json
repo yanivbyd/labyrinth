@@ -1,8 +1,9 @@
 {
-    "matrixWidth": 30,
-    "matrixHeight": 20,
-    "cellSizePx": 50,
+    "matrixWidth": 46,
+    "matrixHeight": 40,
+    "cellSizePx": 25,
     "initialHealth": 15,
     "maxHealth": 100,
-    "initialWatchRadius": 5
+    "initialWatchRadius": 5,
+    "corridorWidth": 3
 }

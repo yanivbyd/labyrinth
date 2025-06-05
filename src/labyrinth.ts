@@ -2,18 +2,19 @@
 
 import { Matrix } from './matrix.js';
 import { MatrixRenderer } from './matrixRenderer.js';
-import {constructCreatures, constructWalls} from "./construct.js";
-import {LabyrinthConfig, loadConfig} from "./config.js";
-import {CreatureTable} from "./creatureTable.js";
+import { loadConfig } from "./config.js";
+import { CreatureTable } from "./creatureTable.js";
+import { constructMaze } from "./mazeConstructor.js";
+import { constructCreatures } from "./creatureConstructor.js";
 
 async function initLabyrinth() {
-    const config: LabyrinthConfig  = await loadConfig();
+    const config = await loadConfig();
 
     const renderer = new MatrixRenderer('matrix-container', config.cellSizePx);
     const matrix = new Matrix(config, renderer);
     const creatureTable = CreatureTable.getInstance();
 
-    constructWalls(matrix, config);
+    constructMaze(matrix, config);
     constructCreatures(matrix, config, creatureTable);
 
     renderer.render(matrix);

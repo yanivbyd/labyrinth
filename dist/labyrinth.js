@@ -10,16 +10,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { Matrix } from './matrix.js';
 import { MatrixRenderer } from './matrixRenderer.js';
-import { constructCreatures, constructWalls } from "./construct.js";
 import { loadConfig } from "./config.js";
 import { CreatureTable } from "./creatureTable.js";
+import { constructMaze } from "./mazeConstructor.js";
+import { constructCreatures } from "./creatureConstructor.js";
 function initLabyrinth() {
     return __awaiter(this, void 0, void 0, function* () {
         const config = yield loadConfig();
         const renderer = new MatrixRenderer('matrix-container', config.cellSizePx);
         const matrix = new Matrix(config, renderer);
         const creatureTable = CreatureTable.getInstance();
-        constructWalls(matrix, config);
+        constructMaze(matrix, config);
         constructCreatures(matrix, config, creatureTable);
         renderer.render(matrix);
         // Set up the cycle button
